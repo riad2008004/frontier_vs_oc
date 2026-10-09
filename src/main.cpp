@@ -6,6 +6,7 @@
 #include "voltage_read.h"
 #include "current_sensor.h"
 #include "button.h"
+#include "menu.h"
 
 // LCD
 ST7032_asukiaaa lcd(0x3E);
@@ -14,8 +15,8 @@ ST7032_asukiaaa lcd(0x3E);
 const uint8_t RELAY_PIN = 7;
 
 // Protection thresholds
-const float MAX_VOLTAGE = 220.0;
-const float MAX_CURRENT = 16.0;
+float MAX_VOLTAGE = 220.0;
+float MAX_CURRENT = 16.0;
 
 // Set according to your relay module:
 // LOW = relay energized, load connected (common active-LOW modules)
@@ -233,6 +234,9 @@ void setup()
   calibrateCurrentSensor();
 
   lcd.clear();
+
+  menuBegin(lcd, MAX_VOLTAGE, MAX_CURRENT);
+
   connectLoad();
 }
 
@@ -250,6 +254,34 @@ void loop()
 
     voltageRMS = readSourceRMS();
     currentRMS = readCurrentRMS();
+
+    MenuResult result = MENU_IDLE;
+    if (fault == NO_FAULT)
+    {
+      result = menuHandle(lcd, MAX_VOLTAGE, MAX_CURRENT);
+    }
+
+    if (fault == NO_FAULT && menuIsOpen())
+    {
+      disconnectLoad();
+      return;
+    }
+
+    if (result == MENU_SAVED)
+    {
+      if (voltageRMS > MAX_VOLTAGE ||
+          currentRMS > MAX_CURRENT)
+      {
+        checkFaults();
+      }
+      else
+      {
+        fault = NO_FAULT;
+        connectLoad();
+        lcd.clear();
+      }
+      return;
+    }
 
     Serial.print("Voltage: ");
     Serial.print(voltageRMS, 2);

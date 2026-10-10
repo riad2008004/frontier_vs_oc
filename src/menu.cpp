@@ -3,7 +3,6 @@
 #include <ST7032_asukiaaa.h>
 #include "menu.h"
 #include "button.h"
-#include "menu.h"
 
 static bool opened = false;
 static bool holdTiming = false;

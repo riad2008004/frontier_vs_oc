@@ -18,7 +18,6 @@ const uint8_t RELAY_PIN = 7;
 float MAX_VOLTAGE = 220.0;
 float MAX_CURRENT = 16.0;
 
-// Set according to your relay module:
 // LOW = relay energized, load connected (common active-LOW modules)
 // HIGH = relay de-energized, load disconnected
 const uint8_t RELAY_ON = LOW;
